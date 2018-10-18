@@ -53,34 +53,36 @@ class Expression:
 
         for token in parsed_func:
             if token.op_type == 'const':
-                if token.value == 'e':
-                    out.append((numpy.e, True))
-                elif token.value == 'pi':
-                    out.append((numpy.pi, True))
+                if token.alias == 'e':
+                    out.append((numpy.e, None))
+                elif token.alias == 'pi':
+                    out.append((numpy.pi, None))
                 else:
-                    out.append((float(token.value), True))
-            elif token.type == 'funct':
-                stack.insert(0, token.encoding)
-            elif token.type == 'op':
-                while len(stack) != 0 and stack[0].value != '(' and ((stack[0].type == 'funct' or stack[0] > token or
-                                                                      stack[0] == token and not token.r_assoc)):
-                    out.append((stack.pop(0).encoding, False))
+                    out.append((float(token.alias), None))
+            elif token.op_type == 'var':
+                out.append((token.alias, None))
+            elif token.op_type == 'funct':
                 stack.insert(0, token)
-            elif token.value == '(':
+            elif token.op_type == 'op':
+                while len(stack) != 0 and stack[0].alias != '(' and ((stack[0].op_type == 'funct' or stack[0] > token or
+                                                                      stack[0] == token and not token.is_right_assoc)):
+                    out.append((stack[0].function, stack.pop(0).arity))
                 stack.insert(0, token)
-            elif token.value == ')':
-                while len(stack) != 0 and stack[0].value != '(':
-                    if stack[0].value == 'const':
-                        out.append((stack[0].value, True))
+            elif token.alias == '(':
+                stack.insert(0, token)
+            elif token.alias == ')':
+                while len(stack) != 0 and stack[0].alias != '(':
+                    if stack[0].alias == 'const':
+                        out.append((stack[0].alias, None))
                     else:
-                        out.append((stack[0].encoding, False))
+                        out.append((stack[0].function, stack[0].arity))
                     stack.pop(0)
                 stack.pop(0)
 
         for token in stack:
-            if token.type == 'brk':
+            if token.op_type == 'brk':
                 raise ValueError
-            out.append((token.encoding, False))
+            out.append((token.function, token.arity))
         out = numpy.array(out)
 
         return out

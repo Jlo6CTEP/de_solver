@@ -1,11 +1,14 @@
 from operator import sub, mul
 
+import numpy
 from PyQt5 import QtWidgets
 import time
 
 import project
 from  math_parser import Expression
 from numba import autojit
+
+from numerical_solver import Solver
 from operators import operators_dict
 
 
@@ -38,9 +41,14 @@ def main():
     # app.exec_()  # и запускаем приложение
     # lol = autojit(lel)
 
-    a = Expression("e * sin(x*2/z)")
-    kek = a.parse_function()
+    a = Expression("(cos(e * sin(3*2/4)) - 10 + 5)^3")
+
+    solver = Solver()
+    kek = a.shunting_yard()
+    kek2 = numpy.empty([10, 2], 'object')
+    kek =solver.evaluate(kek, kek2)
     print(kek)
+    print(numpy.cos(numpy.e * numpy.sin(3 * 2 / 4)))
 
 
 if __name__ == '__main__':  # Если мы запускаем фай л напрямую, а не импортируем
