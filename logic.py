@@ -11,10 +11,8 @@ class ExampleApp(QtWidgets.QMainWindow, project.Ui_MainWindow):
     i = 0
 
     def __init__(self):
-        # Это здесь нужно для доступа к переменным, методам
-        # и т.д. в файле design.py
         super().__init__()
-        self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+        self.setupUi(self)
         self.buttonLeft.clicked.connect(self.on_click)
 
     def on_click(self):
@@ -23,28 +21,29 @@ class ExampleApp(QtWidgets.QMainWindow, project.Ui_MainWindow):
 
 
 def main():
-    # app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-    # window = ExampleApp()  # Создаём объект класса ExampleApp
-    # window.show()  # Показываем окно
-    # app.exec_()  # и запускаем приложение
+    # app = QtWidgets.QApplication(sys.argv)
+    # window = ExampleApp()
+    # window.show()
+    # app.exec_()
 
     print("ready here")
     x = 0
 
-    funct = input().replace("x", "x_0").replace("y", "z")
+    funct = input().replace("x", "x_0").replace("y", "z")  # obtain function for evaluation
 
-    code = open('methods.py', 'r+').read()
+    code = open('methods.py', 'r+').read()  # open back-up code file
+
+    # modify code from back-up file, putting function into right place
     code = code[code.index("euler start") + 14:code.index("euler end") - 4].replace("\"$$\"", funct)
 
-    f = open('solver.py', 'w+')
-    f.write(code)
-    f.close()
-    importlib.reload(solver)
+    open('solver.py', 'w+').write(code)  # write modified code to file
+
+    importlib.reload(solver)  # reload module to apply changes in code
     time.clock()
-    arr = numpy.empty([10000000, 1])
-    solver.calculate(1, 1, 10, 10000000, arr)
+    arr = numpy.empty([10000000, 1])  # and now the warp engine is engaged!
+    solver.calculate(1, 1, 10, 10000000, arr)  # we're ready to ROCK
     print(time.clock())
 
 
-if __name__ == '__main__':  # Если мы запускаем фай л напрямую, а не импортируем
-    main()  # то запускаем функцию main()
+if __name__ == '__main__':
+    main()
