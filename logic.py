@@ -5,6 +5,7 @@ import time
 import solver
 import importlib
 import project
+from PyQt5 import QtWebEngineWidgets
 
 
 class ExampleApp(QtWidgets.QMainWindow, project.Ui_MainWindow):
@@ -43,6 +44,7 @@ def main():
     arr = numpy.empty([10000000, 1])  # and now the warp engine is engaged!
     solver.calculate(1, 1, 10, 10000000, arr)  # we're ready to ROCK
     print(time.clock())
+
 
 
 if __name__ == '__main__':
