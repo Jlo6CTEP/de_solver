@@ -1,11 +1,14 @@
-import numpy
+import numpy as np
 from PyQt5 import QtWidgets
 import time
 
-import solver
 import importlib
 import project
-from PyQt5 import QtWebEngineWidgets
+import matplotlib
+
+# matplotlib.use('GTKAgg')
+import matplotlib.pyplot as plt
+from glumpy import app
 
 
 class ExampleApp(QtWidgets.QMainWindow, project.Ui_MainWindow):
@@ -28,7 +31,6 @@ def main():
     # app.exec_()
 
     print("ready here")
-    x = 0
 
     funct = input().replace("x", "x_0").replace("y", "z")  # obtain function for evaluation
 
@@ -39,12 +41,19 @@ def main():
 
     open('solver.py', 'w+').write(code)  # write modified code to file
 
-    importlib.reload(solver)  # reload module to apply changes in code
-    time.clock()
-    arr = numpy.empty([10000000, 1])  # and now the warp engine is engaged!
-    solver.calculate(1, 1, 10, 10000000, arr)  # we're ready to ROCK
-    print(time.clock())
+    solver = importlib.import_module("solver")
 
+    x_axis = np.empty([10000000])
+    y_axis = np.empty([10000000])
+
+    solver.calculate(0, 1, 2, 10000000, x_axis, y_axis)
+
+    plt.plot(x_axis, y_axis)
+
+    plt.show()
+
+    print(time.clock())
+    input()
 
 
 if __name__ == '__main__':
