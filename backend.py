@@ -11,8 +11,8 @@ from matplotlib import patches
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigCanvas
 from matplotlib.figure import Figure
 import methods
-import math_constants
-import constants as c
+import constant_math
+import constant_string as c
 
 legend_patches = {'e': 'euler', 'e_e': 'euler error', 'ie': 'improved euler',
                   'e_ie': 'improved euler error', 'rk': 'runge-kutta', 'e_rk': 'runge-kutta error', 'a': 'analytical'}
@@ -33,7 +33,7 @@ class Expression:
     def __init__(self, exp):
         self.raw = exp
         self.cooked = exp
-        for x in math_constants.math_const.items():
+        for x in constant_math.math_const.items():
             self.cooked = self.cooked.replace(x[0], x[1])
 
     def numerical_solution(self, x_0, y_0, x_n, n_iter, solution, mode,
@@ -62,7 +62,7 @@ class Expression:
             raise ValueError(c.PRE_CHECK_ERROR_AN)
 
     def check_validity(self):
-        a = math_constants.math_const.keys()
+        a = constant_math.math_const.keys()
         expr = self.raw
         for x in a:
             expr = expr.replace(x, "")
@@ -85,10 +85,7 @@ class Canvas(FigCanvas):
         self.setParent(parent)
 
     def plot(self, x_axis, y_axis, mode):
-        self.axes.plot(x_axis, y_axis, label = legend_patches.get(mode))
-
-    def pop(self, mode):
-        self.plotted_graphs.pop(mode)[1].remove()
+        self.axes.plot(x_axis, y_axis, label=legend_patches.get(mode))
 
     def plot_graph(self, de, solution, graphs, x_n, n_iter, x_0, y_0):
 
@@ -139,9 +136,8 @@ class Canvas(FigCanvas):
             elif x is 'e_rk':
                 self.plot(e_runge_kutta_x, e_runge_kutta_y, 'e_rk')
             elif x is 'a':
-                self.plot(analytical_x,analytical_y, 'a')
+                self.plot(analytical_x, analytical_y, 'a')
             else:
                 self.draw()
         self.axes.legend(title="Legend")
         self.draw()
-

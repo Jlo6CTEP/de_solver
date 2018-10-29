@@ -13,7 +13,7 @@ def calculate(x, y, end, n_of_iter, x_axis, y_axis):
     y_axis[0] = y
     while i < n_of_iter:
         x = x + step
-        y_axis[i] = math.e**(-2*x) + 2*x -1
+        y_axis[i] = math.e**(-2*x) + 2*x - 1
         x_axis[i] = x
         i = i + 1
     return

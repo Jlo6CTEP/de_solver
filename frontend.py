@@ -9,14 +9,14 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigCanvas, N
 from matplotlib.figure import Figure
 from backend import Canvas
 import backend
-import constants as c
+import constant_string as c
 import ctypes
 
 
-class DE_solver(QWidget):
+class Window(QWidget):
 
     def __init__(self, parent=None):
-        super(DE_solver, self).__init__(parent)
+        super(Window, self).__init__(parent)
 
         my_app_id = 'InnoUI.DE_Solver.smart_solver.101'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
@@ -205,6 +205,5 @@ class DE_solver(QWidget):
 
 
 app = QApplication(sys.argv)
-
-a_window = DE_solver()
+a_window = Window()
 sys.exit(app.exec_())

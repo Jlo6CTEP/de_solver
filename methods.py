@@ -25,7 +25,7 @@ def calculate(x, y, end, n_of_iter, x_axis, y_axis, e_x_axis, e_y_axis):
         x_axis[i] = x
         e_x_axis[i] = x
         y_axis[i] = y + step * "$$"
-        e_y_axis[i] = y_axis[i] - "$"
+        e_y_axis[i] = abs(y_axis[i]) - abs("$")
         i = i + 1
         x = x + step
     return
@@ -64,7 +64,9 @@ def calculate(x, y, end, n_of_iter, x_axis, y_axis, e_x_axis, e_y_axis):
 
         y_axis[i] = step * (m1 + m2) / 2.0
 
-        e_y_axis[i] = y_axis[i] - "$"
+        x = x_axis[i]
+
+        e_y_axis[i] = abs(y_axis[i - 1]) - abs("$")
         i = i + 1
         x = x + step
     return
@@ -109,7 +111,10 @@ def calculate(x, y, end, n_of_iter, x_axis, y_axis, e_x_axis, e_y_axis):
         k4 = "$$"
 
         y_axis[i] = y_axis[i - 1] + step / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
-        e_y_axis[i] = y_axis[i] - "$"
+
+        x = x_axis[i]
+
+        e_y_axis[i] = abs(y_axis[i - 1]) - abs("$")
 
         i = i + 1
         x = x + step
