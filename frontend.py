@@ -197,11 +197,17 @@ class Window(QWidget):
         if self.analytical[0].isChecked():
             mode.append(self.analytical[1])
 
-        return_message = self.canvas.plot_graph(self.input_de.text(), self.input_solution.text(), mode,
+        try:
+            return_message = self.canvas.plot_graph(self.input_de.text(), self.input_solution.text(), mode,
                                                 float(self.input_final_x.text()), int(self.input_n_iter.text()),
                                                 float(self.input_initial_x.text()), float(self.input_initial_y.text()))
-        if return_message:
-            self.error_log.setText(self.error_log.text() + '\n' + return_message)
+
+            if return_message:
+                self.error_log.setText(self.error_log.text() + '\n' + return_message)
+
+        except ValueError:
+            self.error_log.setText("Problems")
+
 
 
 app = QApplication(sys.argv)
