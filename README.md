@@ -1,6 +1,5 @@
 # de_solver
-solve 1'st order DEs using numerical methods
+solve 1'st order differential equations using numerical methods
 
-Im using some crutch to solve expressions very very fast: load code template, put expression in it, then write back into file, reload module & jit-compile method.
+Currently I use runge-kutta, euler, and improved euler methods for solving DEs
 
-also i wanna implement other fun stuff like runge-kutta method, impr. euler method, error calcolation and so on
