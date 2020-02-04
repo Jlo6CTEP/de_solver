@@ -1,21 +1,21 @@
-import re
+import importlib
 
 import numba
 import numpy as np
-from PyQt5 import QtWidgets
-import time
-
-import importlib
-import matplotlib.pyplot as plt
-from matplotlib import patches
+from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigCanvas
 from matplotlib.figure import Figure
-import methods
+from sympy import Equality, Function, symbols, dsolve, lambdify
+
 import constant_math
 import constant_string as c
 
-legend_patches = {'e': 'euler', 'e_e': 'euler error', 'ie': 'improved euler',
-                  'e_ie': 'improved euler error', 'rk': 'runge-kutta', 'e_rk': 'runge-kutta error', 'a': 'analytical'}
+from sympy.parsing.sympy_parser import (parse_expr,
+                                                standard_transformations,
+                                                implicit_multiplication)
+
+legend_patches = {'e': 'euler', 'ie': 'improved euler',
+                  'rk': 'runge-kutta', 'a': 'analytical'}
 
 
 def modify_code(mode, funct="", solution=""):
@@ -37,20 +37,20 @@ class Expression:
             self.cooked = self.cooked.replace(x[0], x[1])
 
     def numerical_solution(self, x_0, y_0, x_n, n_iter, solution, mode,
-                           euler_x, euler_y, i_euler_x, i_euler_y, runge_kutta_x, runge_kutta_y,
-                           e_euler_x, e_euler_y, e_i_euler_x, e_i_euler_y, e_runge_kutta_x, e_runge_kutta_y):
+                           euler_x, euler_y, i_euler_x, i_euler_y, runge_kutta_x, runge_kutta_y):
 
         if self.check_validity():
             for x in mode:
-                if x is 'e' or x is 'e_e':
-                    modify_code('e', self.cooked, solution).calculate(x_0, y_0, x_n, n_iter, euler_x, euler_y,
-                                                                      e_euler_x, e_euler_y)
-                elif x is 'ie' or x is 'e_ie':
-                    modify_code('ie', self.cooked, solution).calculate(x_0, y_0, x_n, n_iter, i_euler_x, i_euler_y,
-                                                                       e_i_euler_x, e_i_euler_y)
-                elif x is 'rk' or x is 'e_rk':
-                    modify_code('rk', self.cooked, solution).calculate(x_0, y_0, x_n, n_iter, runge_kutta_x,
-                                                                       runge_kutta_y, e_runge_kutta_x, e_runge_kutta_y)
+                if x is 'e':
+                    modify_code('e', self.cooked, solution).calculate(
+                        x_0, y_0, x_n, n_iter, euler_x, euler_y)
+                elif x is 'ie':
+                    modify_code('ie', self.cooked, solution).calculate(
+                        x_0, y_0, x_n, n_iter, i_euler_x, i_euler_y)
+                elif x is 'rk':
+                    modify_code('rk', self.cooked, solution).calculate(
+                        x_0, y_0, x_n, n_iter, runge_kutta_x, runge_kutta_y)
+
         else:
             raise ValueError(c.PRE_CHECK_ERROR_DE)
 
@@ -87,7 +87,7 @@ class Canvas(FigCanvas):
     def plot(self, x_axis, y_axis, mode):
         self.axes.plot(x_axis, y_axis, label=legend_patches.get(mode))
 
-    def plot_graph(self, de, solution, graphs, x_n, n_iter, x_0, y_0):
+    def plot_graph(self, de, graphs, x_n, n_iter, x_0, y_0):
 
         euler_x = np.empty([n_iter])
         euler_y = np.empty([n_iter])
@@ -96,28 +96,33 @@ class Canvas(FigCanvas):
         runge_kutta_x = np.empty([n_iter])
         runge_kutta_y = np.empty([n_iter])
 
-        e_euler_x = np.empty([n_iter])
-        e_euler_y = np.empty([n_iter])
-        e_i_euler_x = np.empty([n_iter])
-        e_i_euler_y = np.empty([n_iter])
-        e_runge_kutta_x = np.empty([n_iter])
-        e_runge_kutta_y = np.empty([n_iter])
         analytical_x = np.empty([n_iter])
         analytical_y = np.empty([n_iter])
 
         numerical = Expression(de)
-        analytical = Expression(solution)
+
+        transformations = standard_transformations + (implicit_multiplication,)
+        expr = parse_expr(de, transformations=transformations)
+
+        y = Function("f")
+        from sympy.abc import x
+        expr = expr.replace(symbols('x'), x)
+        expr = expr.replace(symbols('y'), y(x))
+
+        eq = Equality(y(x).diff(x), expr)
+
+        solved = dsolve(eq, ics={y(x_0): y_0})
+
+        analytical = Expression(str(solved.rhs))
 
         try:
             numerical.numerical_solution(x_0, y_0, x_n, n_iter, analytical.cooked, graphs,
-                                         euler_x, euler_y, i_euler_x, i_euler_y, runge_kutta_x, runge_kutta_y,
-                                         e_euler_x, e_euler_y, e_i_euler_x, e_i_euler_y, e_runge_kutta_x,
-                                         e_runge_kutta_y)
-        except numba.errors.NumbaError:
+                                         euler_x, euler_y, i_euler_x, i_euler_y, runge_kutta_x, runge_kutta_y)
+        except:
             return c.CALCULATION_ERROR_DE
         try:
             analytical.analytical_solution(x_0, y_0, x_n, n_iter, analytical_x, analytical_y)
-        except numba.errors.NumbaError:
+        except:
             return c.CALCULATION_ERROR_DE
 
         self.axes.clear()
@@ -125,16 +130,10 @@ class Canvas(FigCanvas):
         for x in graphs:
             if x is 'e':
                 self.plot(euler_x, euler_y, 'e')
-            elif x is 'e_e':
-                self.plot(e_euler_x, e_euler_y, 'e_e')
             elif x is 'ie':
                 self.plot(i_euler_x, i_euler_y, 'ie')
-            elif x is 'e_ie':
-                self.plot(e_i_euler_x, e_i_euler_y, 'e_ie')
             elif x is 'rk':
                 self.plot(runge_kutta_x, runge_kutta_y, 'rk')
-            elif x is 'e_rk':
-                self.plot(e_runge_kutta_x, e_runge_kutta_y, 'e_rk')
             elif x is 'a':
                 self.plot(analytical_x, analytical_y, 'a')
             else:

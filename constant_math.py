@@ -12,8 +12,10 @@ math_const = {'+': '+',
               'arcsin': 'math.asin',
               'arccos': 'math.acos',
               'arctg': 'math.atan',
+              'exp': 'e**',
               'sqrt': 'math.sqrt',
               'e': 'math.e',
               'pi': 'math.pi',
               **{str(x): str(x) for x in range(10)},
-              '.': '.'}
+              '.': '.',
+              ',': 'diff({1})'}
